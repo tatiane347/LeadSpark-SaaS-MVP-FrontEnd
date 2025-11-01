@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeadSpark - Painel de Leads</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Estilos base herdados */
+        :root{ 
+            --bg: #0b0b0c; 
+            --pink-1: #ff6bd6; 
+            --pink-2: #ff2fa6; 
+            --muted: #a0a0a0;
+            --dark-card: #151518; 
+            --header-bg: #101012; 
+            --dark-border: rgba(255,255,255,0.06); 
+        } 
+        body{ 
+            background: var(--bg); 
+            font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; 
+            color: #ffffff;
+            min-height: 100vh;
+        } 
+        /* Estilo do Botão de Exportar */
+        .btn-outline-dark-light {
+            color: #fff;
+            border-color: var(--dark-border);
+        }
+        .btn-outline-dark-light:hover {
+            color: #111;
+            background-color: #fff;
+            border-color: #fff;
+        }
+        /* Estilo do Texto com Gradiente (LeadSpark) */
+        .accent-gradient-text{ 
+            background: linear-gradient(90deg,var(--pink-1), var(--pink-2)); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            background-clip: text; 
+            text-fill-color: transparent; 
+        } 
+        /* Estilo para os Cards de KPI */
+        .kpi-card {
+            background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); 
+            border: 1px solid var(--dark-border); 
+            border-radius: 12px;
+        }
+        /* Estilo do Container da Tabela */
+        .leads-container {
+            background-color: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        /* Estilo do Cabeçalho da Tabela */
+        .leads-table-header {
+            background: rgba(255,107,214,0.1); 
+            color: var(--pink-1);
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 10px 15px;
+            display: flex;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+        .leads-table-header div {
+            flex: 1;
+            padding-right: 15px;
+        }
+        
+        /* Estilos da Linha de Dados (Novo) */
+        .leads-row {
+            display: flex;
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: background-color 0.2s;
+        }
+        .leads-row:hover {
+            background-color: rgba(255,255,255,0.02);
+        }
+        .leads-row:last-child {
+            border-bottom: none;
+        }
+        .leads-row div {
+            flex: 1;
+        }
+        
+        /* Estilo para a linha vazia */
+        .empty-row {
+            color: var(--muted);
+            text-align: center;
+            padding: 40px 0;
+            font-size: 1.1rem;
+        }
+        
+        /* Estilos do Formulário de Busca e Filtro (Novo) */
+        .form-control.bg-transparent {
+            background-color: transparent !important;
+            color: #fff !important;
+            border-color: rgba(255,255,255,0.1) !important;
+        }
+        .form-control.bg-transparent:focus {
+            box-shadow: 0 0 0 0.25rem rgba(255,107,214,0.25);
+            border-color: var(--pink-1) !important;
+        }
+        .dropdown-menu-dark {
+            background-color: var(--dark-card);
+            border-color: var(--dark-border);
+        }
+        .dropdown-item-dark {
+            color: #fff;
+        }
+        .dropdown-item-dark:hover {
+            background-color: rgba(255,255,255,0.05);
+        }
+
+        /* Estilos da Navegação Lateral (Sidebar) - Mantidos */
+        .sidebar { width: 240px; background-color: var(--header-bg); padding: 20px; height: 100vh; position: fixed; top: 0; left: 0; border-right: 1px solid var(--dark-border); }
+        .sidebar-content { padding-left: 260px; padding-top: 30px; padding-bottom: 30px; }
+        .nav-link-custom { color: var(--muted); padding: 10px 15px; border-radius: 8px; transition: all 0.2s; font-weight: 500; display: flex; align-items: center; gap: 10px; }
+        .nav-link-custom:hover { color: #fff; background-color: rgba(255,255,255,0.05); }
+        .nav-link-custom.active { background-color: var(--pink-2); color: #111 !important; font-weight: 600; }
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .sidebar-content { padding-left: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="d-flex align-items-center mb-5 gap-2">
+        <div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--pink-1),var(--pink-2));display:grid;place-items:center;font-weight:700;font-size:1rem;color:#111">LS</div>
+        <h5 class="mb-0 text-white">LeadSpark</h5>
+    </div>
+
+    <ul class="nav flex-column">
+        <li class="nav-item">
+            <a class="nav-link nav-link-custom active" href="dashboard.html">
+                <i class="bi bi-bar-chart-line-fill"></i> Visão Geral
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link nav-link-custom" href="#">
+                <i class="bi bi-people-fill"></i> Leads
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link nav-link-custom" href="landingpages.html">
+                <i class="bi bi-palette-fill"></i> Landing Pages
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link nav-link-custom" href="settings.html">
+                <i class="bi bi-gear-fill"></i> Configurações
+            </a>
+        </li>
+    </ul>
+
+    <div class="mt-auto pt-4 border-top" style="position: absolute; bottom: 20px; width: calc(100% - 40px);">
+        <a href="auth.html" class="nav-link nav-link-custom">
+            <i class="bi bi-box-arrow-right"></i> Sair
+        </a>
+    </div>
+</div>
+
+<div class="sidebar-content container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="mb-1">
+                <span class="accent-gradient-text">LeadSpark</span> Painel
+            </h1>
+            <p class="lead text-muted small">Seus leads capturados pelo LeadSpark.</p>
+        </div>
+        
+        <button class="btn btn-outline-dark-light" id="exportCsvBtn">
+            <i class="bi bi-download"></i> Exportar CSV
+        </button>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="kpi-card p-4 h-100">
+                <p class="text-muted mb-1 small">Total de Leads</p>
+                <h3 class="fw-bold display-6">254</h3>
+                <span class="text-success small"><i class="bi bi-arrow-up-right"></i> +12% vs. mês passado</span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="kpi-card p-4 h-100">
+                <p class="text-muted mb-1 small">Taxa de Conversão</p>
+                <h3 class="fw-bold display-6 accent-gradient-text">4.5%</h3>
+                <span class="text-danger small"><i class="bi bi-arrow-down-right"></i> -0.3% vs. mês passado</span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="kpi-card p-4 h-100">
+                <p class="text-muted mb-1 small">Leads Hoje</p>
+                <h3 class="fw-bold display-6">12</h3>
+                <span class="text-white small">Último lead há 2 horas</span>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <div class="input-group">
+                <input type="text" class="form-control bg-transparent" placeholder="Buscar por nome ou email...">
+                <span class="input-group-text bg-transparent border-start-0" style="color:var(--muted);"><i class="bi bi-search"></i></span>
+            </div>
+        </div>
+        <div class="col-md-4 text-end">
+            <div class="dropdown">
+                <button class="btn btn-outline-dark-light dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-filter"></i> Filtrar por LP
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark w-100">
+                    <li><a class="dropdown-item dropdown-item-dark" href="#">Todos os Leads</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item dropdown-item-dark" href="#">LP Principal</a></li>
+                    <li><a class="dropdown-item dropdown-item-dark" href="#">LP de Oferta</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="leads-container">
+        <div class="leads-table-header">
+            <div style="flex: 2;">Nome</div>
+            <div style="flex: 3;">Email</div>
+            <div style="flex: 2;">Website</div>
+            <div style="flex: 2;">Captação</div>
+            <div style="flex: 1;">Ações</div>
+        </div>
+        
+        <div class="leads-row" style="color:#fff;">
+            <div style="flex: 2;">João Silva</div>
+            <div style="flex: 3;">joao.silva@teste.com</div>
+            <div style="flex: 2;">https://joaosilva.com.br</div>
+            <div style="flex: 2;" class="small text-muted">2025-10-31</div>
+            <div style="flex: 1;"><button class="btn btn-sm text-info p-0" title="Ver Detalhes"><i class="bi bi-eye"></i></button></div>
+        </div>
+        
+        <div class="leads-row" style="color:#fff;">
+            <div style="flex: 2;">Maria Souza</div>
+            <div style="flex: 3;">maria.souza@empresa.com</div>
+            <div style="flex: 2;">-</div>
+            <div style="flex: 2;" class="small text-muted">2025-10-30</div>
+            <div style="flex: 1;"><button class="btn btn-sm text-info p-0" title="Ver Detalhes"><i class="bi bi-eye"></i></button></div>
+        </div>
+        
+        <div class="leads-row" style="color:#fff;">
+            <div style="flex: 2;">Pedro Alvez</div>
+            <div style="flex: 3;">pedro@alvez.net</div>
+            <div style="flex: 2;">-</div>
+            <div style="flex: 2;" class="small text-muted">2025-10-29</div>
+            <div style="flex: 1;"><button class="btn btn-sm text-info p-0" title="Ver Detalhes"><i class="bi bi-eye"></i></button></div>
+        </div>
+
+        <div class="empty-row d-none" id="emptyRow">
+            Nenhum lead capturado ainda.
+        </div>
+        
+        <div class="d-flex justify-content-between align-items-center pt-3 small">
+            <span class="text-muted">Mostrando 1 a 10 de 254 leads</span>
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item disabled"><a class="page-link bg-transparent text-white border-secondary border-opacity-25" href="#"><i class="bi bi-chevron-left"></i></a></li>
+                    <li class="page-item active"><a class="page-link btn-pink text-dark border-secondary border-opacity-25" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link bg-transparent text-white border-secondary border-opacity-25" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link bg-transparent text-white border-secondary border-opacity-25" href="#">3</a></li>
+                    <li class="page-item"><a class="page-link bg-transparent text-white border-secondary border-opacity-25" href="#"><i class="bi bi-chevron-right"></i></a></li>
+                </ul>
+                <li class="nav-item">
+    <a class="nav-link nav-link-custom" href="about.html">
+        <i class="bi bi-info-circle-fill"></i> Sobre o Projeto
+    </a>
+</li>
+            </nav>
+        </div>
+        
+    </div>
+    
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Lógica para simular a exportação (MVP)
+    document.getElementById('exportCsvBtn').addEventListener('click', function() {
+        alert('Simulação: Seus leads foram exportados como CSV.');
+    });
+</script>
+</body>
+</html>
